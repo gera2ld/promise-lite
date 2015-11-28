@@ -39,11 +39,17 @@
     return new Promise(function (resolve, reject) {
       function callback() {
         var result;
-        var handler = _this.$$status === 'resolved' ? okHandler : errHandler;
-        if (handler) try {
-          result = handler(_this.$$value);
-        } catch (e) {
-          return reject(e);
+        var resolved = _this.$$status === 'resolved';
+        var handler = resolved ? okHandler : errHandler;
+        if (handler)
+          try {
+            result = handler(_this.$$value);
+          } catch (e) {
+            return reject(e);
+          }
+        else {
+          result = _this.$$value;
+          if (!resolved) return reject(result);
         }
         resolve(result);
       }
@@ -67,26 +73,35 @@
   Promise.all = function (promises) {
     return new Promise(function (resolve, reject) {
       function rejectAll(data) {
-        if (rejected) return;
-        rejected = true;
+        if (results) {
+          results = null;
+          reject(data);
+        }
       }
       function resolveOne(data, i) {
-        results[i] = data;
-        if (!-- pending) resolve(results);
+        if (results) {
+          results[i] = data;
+          pending --;
+          check();
+        }
+      }
+      function check() {
+        results && !pending && resolve(results);
       }
       var results = [];
-      var rejected = false;
       var pending = promises.length;
       promises.forEach(function (promise, i) {
-        if (promise instanceof Promise)
+        if (promise instanceof Promise) {
           promise.then(function (data) {
             resolveOne(data, i);
           }, function (data) {
             rejectAll(data);
           });
-          else
-            results[i] = promise;
+        } else {
+          resolveOne(promise, i);
+        }
       });
+      check();
     });
   };
   return Promise;
