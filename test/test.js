@@ -1,5 +1,5 @@
-var assert = require('assert');
-var MyPromise = require('../promise');
+const assert = require('assert');
+const MyPromise = require('../promise');
 
 function asyncEqual(func, done) {
   try {
@@ -33,6 +33,16 @@ describe('Promise', function () {
       .then((data) => {
         asyncEqual(() => assert.equal(data, 'beauty'), done);
       });
+    });
+
+    it('should invoke asynchronously', function (done) {
+      var data = '';
+      MyPromise.resolve(1)
+      .then((res) => {
+        data += res;
+        asyncEqual(() => assert.equal(data, '21'), done);
+      });
+      data += 2;
     });
   });
 

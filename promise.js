@@ -6,7 +6,7 @@
   else
     root.Promise = factory();
 }(typeof window !== 'undefined' ? window : this, function () {
-  function Promise(callback) {
+  function Promise(resolver) {
     function resolve(data) {
       if (data instanceof Promise) {
         data.then(resolve, reject);
@@ -32,7 +32,7 @@
     _this.$$status = 'pending';
     _this.$$value = null;
     _this.$$callbacks = [];
-    callback(resolve, reject);
+    resolver(resolve, reject);
   }
   Promise.prototype.then = function (okHandler, errHandler) {
     var _this = this;
@@ -54,7 +54,7 @@
         resolve(result);
       }
       if (_this.$$status === 'pending') _this.$$callbacks.push(callback);
-      else callback();
+      else setTimeout(callback, 0);
     });
   };
   Promise.prototype.catch = function (errHandler) {
