@@ -102,4 +102,34 @@ describe('Promise', function () {
     });
   });
 
+  describe('#race', function () {
+    it('should resolve the first value', function (done) {
+      MyPromise.race([1, 2]).then((data) => {
+        asyncEqual(() => assert.equal(data, 1), done);
+      });
+    });
+
+    it('should resolve the first resolve', function (done) {
+      MyPromise.race([
+        new MyPromise((resolve, reject) => setTimeout(() => reject(1), 500)),
+        new MyPromise((resolve) => setTimeout(() => resolve(2), 100)),
+      ]).then((data) => {
+        asyncEqual(() => assert.equal(data, 2), done);
+      }, (data) => {
+        console.log('should not execute here');
+      });
+    });
+
+    it('should reject the first reject', function (done) {
+      MyPromise.race([
+        new MyPromise((resolve) => setTimeout(() => resolve(1), 500)),
+        new MyPromise((resolve, reject) => setTimeout(() => reject(2), 100)),
+      ]).then((data) => {
+        console.log('should not execute here');
+      }, (data) => {
+        asyncEqual(() => assert.equal(data, 2), done);
+      });
+    });
+  });
+
 });
