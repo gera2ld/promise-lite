@@ -1,11 +1,14 @@
 !function (root, factory) {
+  var _factory = function () {
+    return factory(root);
+  };
   if (typeof define === 'function' && define.amd)
-    define([], factory);
-  else if (typeof module === 'object' && module.exports)
-    module.exports = factory();
+    define([], _factory);
+  if (typeof module === 'object' && module.exports)
+    module.exports = _factory();
   else
-    root.Promise = root.Promise || factory();
-}(typeof window !== 'undefined' ? window : this, function () {
+    root.Promise = root.Promise || _factory();
+}(typeof global !== 'undefined' ? global : this, function (root) {
 
   var PENDING = 'pending';
   var FULFILLED = 'fulfilled';
@@ -13,9 +16,14 @@
   var asyncQueue = [];
   var asyncTimer;
   var slice = Array.prototype.slice;
+  var timeFunc = getTimeFunc();
+
+  function getTimeFunc() {
+    return root.setImmediate || root.requestAnimationFrame || root.setTimeout;
+  }
 
   function asyncApply() {
-    asyncTimer = null;
+    asyncTimer = false;
     var currentQueue = asyncQueue;
     asyncQueue = [];
     currentQueue.forEach(function (data) {
@@ -26,7 +34,8 @@
   function asyncCall(func, args) {
     asyncQueue.push([func, args]);
     if (!asyncTimer) {
-      asyncTimer = setTimeout(asyncApply, 0);
+      timeFunc(asyncApply);
+      asyncTimer = true;
     }
   }
 
