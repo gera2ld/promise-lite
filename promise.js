@@ -49,7 +49,7 @@
   }
 
   function resolvePromise(promise, data) {
-    if (data instanceof Promise) {
+    if (data && typeof data.then === 'function') {
       data.then(partial(resolvePromise, promise), partial(rejectPromise, promise));
     } else {
       promise.$$status = FULFILLED;
@@ -60,13 +60,19 @@
   function rejectPromise(promise, reason) {
     promise.$$status = REJECTED;
     promise.$$value = reason;
-    then(promise);
+    if (!then(promise)) {
+      console.error('Uncaught (in promise)', reason);
+    }
   }
   function then(promise) {
-    promise.$$then.forEach(function (func) {
-      asyncCall(func);
-    });
-    promise.$$then = [];
+    var length = promise.$$then.length;
+    if (length) {
+      promise.$$then.forEach(function (func) {
+        asyncCall(func);
+      });
+      promise.$$then = [];
+    }
+    return length;
   }
 
   function Promise(resolver) {
