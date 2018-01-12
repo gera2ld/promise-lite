@@ -1,22 +1,23 @@
 promise-lite
 ---
 
+[![NPM](https://img.shields.io/npm/v/@gera2ld/promise-lite.svg)](https://www.npmjs.com/package/@gera2ld/promise-lite)
+
 A lite promise polyfill.
 
-Development
----
-``` sh
-$ npm run dev
-```
-
-Building
+Installation
 ---
 ```sh
-$ npm run build
+$ yarn add @gera2ld/promise-lite
 ```
 
-Lint
+Usage
 ---
-``` sh
-$ npm run lint
+```js
+import LitePromise from '@gera2ld/promise-lite';
+
+window.Promise = window.Promise || LitePromise;
+
+// If you need a synchronous Promise in some special cases
+window.Promise = LitePromise.SyncLitePromise;
 ```
