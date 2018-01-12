@@ -1,6 +1,6 @@
 {
   "name": "@gera2ld/promise-lite",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A lite Promise polyfill",
   "author": "Gerald <i@gerald.top>",
   "license": "ISC",
