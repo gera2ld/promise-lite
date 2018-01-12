@@ -1,28 +1,28 @@
 {
-  "name": "promise-lite",
-  "version": "1.0.0",
-  "description": "A lite Promise polyfill.",
-  "main": "promise.js",
-  "directories": {
-    "test": "test"
-  },
+  "name": "@gera2ld/promise-lite",
+  "version": "0.0.0",
+  "description": "A lite Promise polyfill",
+  "author": "Gerald <i@gerald.top>",
+  "license": "ISC",
+  "main": "dist/index.js",
   "scripts": {
+    "dev": "gulp watch",
+    "build": "gulp build",
+    "lint": "gulp lint",
     "test": "mocha"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gera2ld/promise-lite.git"
-  },
-  "keywords": [
-    "promise"
-  ],
-  "author": "Gerald <i@gerald.top>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/gera2ld/promise-lite/issues"
-  },
-  "homepage": "https://github.com/gera2ld/promise-lite#readme",
   "devDependencies": {
-    "mocha": "^2.3.4"
+    "@babel/core": "^7.0.0-beta.37",
+    "@babel/preset-env": "^7.0.0-beta.37",
+    "eslint": "^4.15.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^4.0.1",
+    "gulp-util": "^3.0.8",
+    "mocha": "^4.1.0",
+    "rollup": "^0.54.0",
+    "rollup-plugin-babel": "^4.0.0-beta.0",
+    "rollup-plugin-replace": "^2.0.0"
   }
 }

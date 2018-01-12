@@ -1,5 +1,5 @@
 const assert = require('assert');
-const MyPromise = require('../promise');
+const MyPromise = require('..');
 
 // Should not return the promise since this is not native Promise
 
@@ -74,6 +74,7 @@ describe('Promise', () => {
 
     it('should reject whatever is passed even if a promise', done => {
       const toBeRejected = Promise.reject('rejected');
+      toBeRejected.catch(() => {});
       MyPromise.reject(toBeRejected)
       .then(null, data => {
         assert(data === toBeRejected);
