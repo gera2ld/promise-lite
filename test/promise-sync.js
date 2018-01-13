@@ -1,9 +1,7 @@
 const assert = require('assert');
-const MyPromise = require('..');
+const MyPromise = require('..').SyncLitePromise;
 
-// Should not return the promise since this is not native Promise
-
-describe('Promise', () => {
+describe('Promise-sync', () => {
 
   describe('#resolve', () => {
     it('should resolve a value', done => {
@@ -31,15 +29,16 @@ describe('Promise', () => {
       .then(done, done);
     });
 
-    it('should invoke asynchronously', done => {
+    it('should invoke synchronously', done => {
       var data = '';
       MyPromise.resolve(1)
       .then(res => {
         data += res;
-        assert.equal(data, '21');
+        assert.equal(data, '1');
       })
       .then(done, done);
       data += 2;
+      assert.equal(data, '12');
     });
 
     it('should resolve Promise-like object', done => {

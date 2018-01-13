@@ -11,8 +11,9 @@ export default class LitePromise {
     let value;
     const handlers = [];
     let uncaught = true;
-    this.then = thenFactory(isStatus, getValue, addHandler);
-    asyncCall(resolver, [resolve, reject]);
+    this.then = thenFactory(this.constructor, isStatus, getValue, addHandler);
+    const { callFunc } = this.constructor;
+    callFunc(resolver, [resolve, reject]);
     function resolve(data) {
       if (!isStatus(PENDING)) return;
       if (isThenable(data)) {
@@ -27,14 +28,14 @@ export default class LitePromise {
       if (!isStatus(PENDING)) return;
       status = REJECTED;
       value = reason;
-      asyncCall(() => {
+      callFunc(() => {
         if (uncaught) console.error('Uncaught (in promise)', reason);
       });
       then();
     }
     function then() {
       handlers.splice(0).forEach(func => {
-        asyncCall(func);
+        callFunc(func);
       });
     }
     function isStatus(checkStatus) {
@@ -46,7 +47,7 @@ export default class LitePromise {
     function addHandler(handler) {
       uncaught = false;
       if (isStatus(PENDING)) handlers.push(handler);
-      else asyncCall(handler);
+      else callFunc(handler);
     }
   }
 
@@ -55,19 +56,19 @@ export default class LitePromise {
   }
 
   static resolve(data) {
-    return new LitePromise(resolve => {
+    return new this(resolve => {
       resolve(data);
     });
   }
 
   static reject(data) {
-    return new LitePromise((resolve, reject) => {
+    return new this((resolve, reject) => {
       reject(data);
     });
   }
 
   static all(promises) {
-    return new LitePromise((resolve, reject) => {
+    return new this((resolve, reject) => {
       let results = [];
       let pending = promises.length;
       promises.forEach((promise, i) => {
@@ -100,7 +101,7 @@ export default class LitePromise {
   }
 
   static race(promises) {
-    return new LitePromise((resolve, reject) => {
+    return new this((resolve, reject) => {
       let pending = true;
       promises.forEach(promise => {
         if (isThenable(promise)) {
@@ -123,7 +124,23 @@ export default class LitePromise {
       }
     });
   }
+
+  static callFunc(func, args) {
+    asyncQueue.push([func, args]);
+    if (!asyncTimer) {
+      timeFunc(asyncApply);
+      asyncTimer = true;
+    }
+  }
 }
+
+class SyncLitePromise extends LitePromise {
+  static callFunc(func, args) {
+    func(...(args || []));
+  }
+}
+
+LitePromise.SyncLitePromise = SyncLitePromise;
 
 function getTimeFunc() {
   return global.setImmediate || global.requestAnimationFrame || global.setTimeout;
@@ -138,15 +155,7 @@ function asyncApply() {
   });
 }
 
-function asyncCall(func, args) {
-  asyncQueue.push([func, args]);
-  if (!asyncTimer) {
-    timeFunc(asyncApply);
-    asyncTimer = true;
-  }
-}
-
-function thenFactory(isStatus, getValue, addHandler) {
+function thenFactory(PromiseClass, isStatus, getValue, addHandler) {
   return (okHandler, errHandler) => {
     let pending = true;
     let handle;
@@ -154,7 +163,7 @@ function thenFactory(isStatus, getValue, addHandler) {
       pending = false;
       if (handle) handle();
     });
-    return new LitePromise((resolve, reject) => {
+    return new PromiseClass((resolve, reject) => {
       handle = () => {
         let result;
         const resolved = isStatus(FULFILLED);
