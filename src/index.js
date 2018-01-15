@@ -2,7 +2,7 @@ const PENDING = 'pending';
 const FULFILLED = 'fulfilled';
 const REJECTED = 'rejected';
 const timeFunc = getTimeFunc();
-let asyncQueue = [];
+const asyncQueue = [];
 let asyncTimer;
 
 export default class LitePromise {
@@ -148,10 +148,8 @@ function getTimeFunc() {
 
 function asyncApply() {
   asyncTimer = false;
-  const currentQueue = asyncQueue;
-  asyncQueue = [];
-  currentQueue.forEach(([func, args]) => {
-    func(...(args || []));
+  asyncQueue.splice(0).forEach(([func, args]) => {
+    SyncLitePromise.callFunc(func, args);
   });
 }
 
