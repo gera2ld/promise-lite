@@ -6,14 +6,19 @@ const asyncQueue = [];
 let asyncTimer;
 
 export default class LitePromise {
-  constructor(resolver) {
+  constructor(executor) {
     let status = PENDING;
     let value;
     const handlers = [];
     let uncaught = true;
     this.then = thenFactory(this.constructor, isStatus, getValue, addHandler);
     const { callFunc } = this.constructor;
-    callFunc(resolver, [resolve, reject]);
+    try {
+      // executor is always synchronous
+      executor(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
     function resolve(data) {
       if (!isStatus(PENDING)) return;
       if (isThenable(data)) {

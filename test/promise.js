@@ -7,7 +7,31 @@ describe('Promise', () => {
     it('should resolve a value', done => {
       MyPromise.resolve('beauty')
       .then(data => {
-        assert.equal(data, 'beauty');
+        assert.strictEqual(data, 'beauty');
+      })
+      .then(done, done);
+    });
+
+    it('should resolve synchronously', done => {
+      const q = [];
+      new MyPromise(resolve => {
+        resolve();
+        q.push(1);
+      })
+      .then(() => {
+        assert.deepEqual(q, [1, 2]);
+      })
+      .then(done, done);
+      q.push(2);
+    });
+
+    it('should reject errors in executor', done => {
+      const err = new Error();
+      new MyPromise(() => {
+        throw err;
+      })
+      .catch(e => {
+        assert.strictEqual(e, err);
       })
       .then(done, done);
     });
@@ -15,7 +39,7 @@ describe('Promise', () => {
     it('should resolve a promise and passes its value', done => {
       MyPromise.resolve(MyPromise.resolve('beauty'))
       .then(data => {
-        assert.equal(data, 'beauty');
+        assert.strictEqual(data, 'beauty');
       })
       .then(done, done);
     });
@@ -24,7 +48,7 @@ describe('Promise', () => {
       MyPromise.resolve('beauty')
       .then(null, null)
       .then(data => {
-        assert.equal(data, 'beauty');
+        assert.strictEqual(data, 'beauty');
       })
       .then(done, done);
     });
@@ -34,7 +58,7 @@ describe('Promise', () => {
       MyPromise.resolve(1)
       .then(res => {
         data += res;
-        assert.equal(data, '21');
+        assert.strictEqual(data, '21');
       })
       .then(done, done);
       data += 2;
@@ -44,7 +68,7 @@ describe('Promise', () => {
       MyPromise.resolve(1)
       .then(data => Promise.resolve(data))
       .then(data => {
-        assert.equal(data, 1);
+        assert.strictEqual(data, 1);
       })
       .then(done, done);
     });
@@ -57,7 +81,7 @@ describe('Promise', () => {
         throw 'exception';
       })
       .catch(err => {
-        assert.equal(err, 'exception');
+        assert.strictEqual(err, 'exception');
       })
       .then(done, done);
     });
@@ -65,7 +89,7 @@ describe('Promise', () => {
     it('should reject a value', done => {
       MyPromise.reject('beauty')
       .then(null, data => {
-        assert.equal(data, 'beauty');
+        assert.strictEqual(data, 'beauty');
       })
       .then(done, done);
     });
@@ -75,7 +99,7 @@ describe('Promise', () => {
       toBeRejected.catch(() => {});
       MyPromise.reject(toBeRejected)
       .then(null, data => {
-        assert(data === toBeRejected);
+        assert.strictEqual(data, toBeRejected);
       })
       .then(done, done);
     });
@@ -84,7 +108,7 @@ describe('Promise', () => {
       MyPromise.reject('beauty')
       .then(null, null)
       .then(null, data => {
-        assert.equal(data, 'beauty');
+        assert.strictEqual(data, 'beauty');
       })
       .then(done, done);
     });
@@ -120,7 +144,7 @@ describe('Promise', () => {
       .then(data => {
         throw 'should not execute here';
       }, data => {
-        assert.equal(data, 2);
+        assert.strictEqual(data, 2);
       })
       .then(done, done);
     });
@@ -130,7 +154,7 @@ describe('Promise', () => {
     it('should resolve the first value', done => {
       MyPromise.race([1, 2])
       .then(data => {
-        assert.equal(data, 1);
+        assert.strictEqual(data, 1);
       })
       .then(done, done);
     });
@@ -141,7 +165,7 @@ describe('Promise', () => {
         new MyPromise(resolve => setTimeout(() => resolve(2), 100)),
       ])
       .then(data => {
-        assert.equal(data, 2);
+        assert.strictEqual(data, 2);
       }, data => {
         throw 'should not execute here';
       })
@@ -156,7 +180,7 @@ describe('Promise', () => {
       .then(data => {
         throw 'should not execute here';
       }, data => {
-        assert.equal(data, 2);
+        assert.strictEqual(data, 2);
       })
       .then(done, done);
     });
