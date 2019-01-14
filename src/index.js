@@ -5,6 +5,18 @@ const timeFunc = getTimeFunc();
 const asyncQueue = [];
 let asyncTimer;
 
+function callAsync(func, args) {
+  asyncQueue.push([func, args]);
+  if (!asyncTimer) {
+    timeFunc(asyncApply);
+    asyncTimer = true;
+  }
+}
+
+function callSync(func, args) {
+  func(...(args || []));
+}
+
 export default class LitePromise {
   constructor(executor) {
     let status = PENDING;
@@ -33,7 +45,7 @@ export default class LitePromise {
       if (!isStatus(PENDING)) return;
       status = REJECTED;
       value = reason;
-      callFunc(() => {
+      callAsync(() => {
         if (uncaught) console.error('Uncaught (in promise)', reason);
       });
       then();
@@ -130,19 +142,11 @@ export default class LitePromise {
     });
   }
 
-  static callFunc(func, args) {
-    asyncQueue.push([func, args]);
-    if (!asyncTimer) {
-      timeFunc(asyncApply);
-      asyncTimer = true;
-    }
-  }
+  static callFunc = callAsync;
 }
 
 class SyncLitePromise extends LitePromise {
-  static callFunc(func, args) {
-    func(...(args || []));
-  }
+  static callFunc = callSync;
 }
 
 LitePromise.SyncLitePromise = SyncLitePromise;

@@ -1,30 +1,71 @@
 {
   "name": "@gera2ld/promise-lite",
   "version": "1.1.1",
-  "private": false,
   "description": "A lite Promise polyfill",
   "author": "Gerald <i@gerald.top>",
   "license": "ISC",
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run lint"
+    }
+  },
   "scripts": {
     "dev": "gulp dev",
+    "prebuild": "npm run ci && gulp clean",
     "build": "gulp build",
-    "lint": "gulp lint",
-    "test": "mocha"
+    "lint": "eslint .",
+    "test": "cross-env BABEL_ENV=test tape -r ./test/mock/register 'test/**/*.test.js'",
+    "ci": "npm run lint && npm run test",
+    "prepublishOnly": "npm run build",
+    "cov": "nyc --reporter=text --reporter=html npm test",
+    "cov:open": "open coverage/index.html"
   },
-  "main": "dist/index.js",
   "repository": "git@github.com:gera2ld/promise-lite.git",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "nyc": {
+    "include": [
+      "src/**"
+    ]
+  },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.38",
-    "@babel/preset-env": "^7.0.0-beta.38",
-    "eslint": "^4.15.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0",
-    "fancy-log": "^1.3.2",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/plugin-proposal-decorators": "^7.2.3",
+    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
+    "@babel/plugin-proposal-function-sent": "^7.2.0",
+    "@babel/plugin-proposal-json-strings": "^7.2.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.2.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.2.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-syntax-import-meta": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/register": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-istanbul": "^5.1.0",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "cross-env": "^5.2.0",
+    "del": "^3.0.0",
+    "eslint": "^5.12.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-import-resolver-babel-module": "^5.0.0-beta.1",
+    "eslint-plugin-import": "^2.14.0",
+    "fancy-log": "^1.3.3",
     "gulp": "^4.0.0",
-    "gulp-eslint": "^4.0.1",
-    "mocha": "^5.0.0",
-    "rollup": "^0.54.1",
-    "rollup-plugin-babel": "^4.0.0-beta.0",
-    "rollup-plugin-replace": "^2.0.0"
+    "husky": "^1.3.1",
+    "nyc": "^13.1.0",
+    "rollup": "^1.1.0",
+    "rollup-plugin-alias": "^1.5.1",
+    "rollup-plugin-babel": "^4.3.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-replace": "^2.1.0",
+    "tape": "^4.9.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.2.0"
   }
 }

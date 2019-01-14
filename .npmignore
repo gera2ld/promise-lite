@@ -1,7 +1,0 @@
-src/
-test/
-gulpfile.js
-.eslintrc.js
-.eslintignore
-.editorconfig
-.babelrc

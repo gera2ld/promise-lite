@@ -1,10 +1,14 @@
 module.exports = {
   extends: 'airbnb-base',
+  parser: 'babel-eslint',
+  parserOptions: {
+    sourceType: 'module'
+  },
   env: {
     browser: true,
   },
   plugins: [
-    'import'
+    'import',
   ],
   rules: {
     'no-use-before-define': ['error', 'nofunc'],
@@ -16,5 +20,14 @@ module.exports = {
     'no-console': ['warn', {
       allow: ['error', 'warn', 'info'],
     }],
+    'no-bitwise': ['error', { int32Hint: true }],
+    indent: ['error', 2, { MemberExpression: 0 }],
+    'no-throw-literal': 0,
+    'prefer-promise-reject-errors': 0,
+  },
+  settings: {
+    'import/resolver': {
+      'babel-module': {},
+    },
   },
 };

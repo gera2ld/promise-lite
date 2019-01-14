@@ -1,53 +1,54 @@
 const path = require('path');
 const gulp = require('gulp');
 const log = require('fancy-log');
-const eslint = require('gulp-eslint');
 const rollup = require('rollup');
-const pkg = require('./package.json');
+const del = require('del');
+const { getRollupPlugins, getExternal } = require('./scripts/util');
 
 const DIST = 'dist';
-const IS_PROD = process.env.NODE_ENV === 'production';
-const values = {
-  'process.env.VERSION': pkg.version,
-  'process.env.NODE_ENV': process.env.NODE_ENV || 'development',
-};
+const FILENAME = 'index';
 
+const external = getExternal();
+const rollupConfig = [
+  {
+    input: {
+      input: 'src/index.js',
+      plugins: getRollupPlugins({ browser: true }),
+    },
+    output: {
+      format: 'umd',
+      file: `${DIST}/${FILENAME}.js`,
+      name: 'Promise',
+    },
+  },
+];
 
-const rollupOptions = {
-  plugins: [
-    require('rollup-plugin-babel')({
-      runtimeHelpers: true,
-      exclude: 'node_modules/**',
-    }),
-    require('rollup-plugin-replace')({ values }),
-  ],
-};
+function clean() {
+  return del([DIST]);
+}
 
 function buildJs() {
-  return rollup.rollup(Object.assign({
-    input: 'src/index.js',
-  }, rollupOptions))
-  .then(bundle => bundle.write({
-    name: 'Promise',
-    file: `${DIST}/index.js`,
-    format: 'umd',
-  }))
+  return Promise.all(rollupConfig.map(config => {
+    return rollup.rollup(config.input)
+    .then(bundle => bundle.write(config.output));
+  }));
+}
+
+function wrapError(handle) {
+  const wrapped = () => handle()
   .catch(err => {
     log(err.toString());
   });
-}
-
-function lint() {
-  return gulp.src('src/**/*.js')
-  .pipe(eslint())
-  .pipe(eslint.format())
-  .pipe(eslint.failAfterError());
+  wrapped.displayName = handle.name;
+  return wrapped;
 }
 
 function watch() {
-  gulp.watch('src/**', buildJs);
+  gulp.watch('src/**', safeBuildJs);
 }
 
-exports.lint = lint;
+const safeBuildJs = wrapError(buildJs);
+
+exports.clean = clean;
 exports.build = buildJs;
-exports.dev = gulp.series(buildJs, watch);
+exports.dev = gulp.series(safeBuildJs, watch);
